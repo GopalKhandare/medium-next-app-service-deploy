@@ -1,8 +1,8 @@
-/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
-  },
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  distDir: 'build',
+  output: 'standalone',
 };
 
-export default config;
+export default nextConfig;
