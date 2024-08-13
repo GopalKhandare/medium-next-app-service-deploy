@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - main  # Trigger on changes to the 'main' branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use an Ubuntu build agent
+
+variables:
+  VM_SSH_USERNAME: $(VM_SSH_USERNAME)  # Define the SSH username
+  VM_SSH_PASSWORD: $(VM_SSH_PASSWORD)  # Define the SSH password
+  VM_SSH_HOST: $(VM_SSH_HOST)  # Define the VM IP or hostname
+
+steps:
+- script: |
+    # Install sshpass for password-based SSH authentication
+    sudo apt-get install -y sshpass
+
+    # Log in to the VM and execute deployment commands
+    sshpass -p $(VM_SSH_PASSWORD) ssh -o StrictHostKeyChecking=no $(VM_SSH_USERNAME)@$(VM_SSH_HOST) << 'EOF'
+      cd /var/www/nextjs-app
+      git pull origin main
+      npm install
+      npm run build
+      pm2 stop all || true
+      pm2 start npm --name 'nextjs-app' -- start
+      pm2 save
+    EOF
+  displayName: 'Deploy and Run Next.js Application on Azure VM'
